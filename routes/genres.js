@@ -3,8 +3,8 @@ const auth = require('../middleware/authentication');
 const checkAdmin = require('../middleware/admin');
 const { Genre, validateGenre } = require('../models/genre.model'); // { Genre, validateGenre } adalah object destructuring
 const express = require('express');
+const validateObjectId = require('../middleware/validateObjectId');
 const router = express.Router();
-
 
 router.get('/', asyncMiddleware(async (req, res) => {
   const genres = await Genre.find().sort('name');
@@ -28,9 +28,9 @@ router.put('/:id', [auth, checkAdmin], asyncMiddleware(async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   const genre = await Genre.findByIdAndUpdate(
-    req.params.id, 
-    { name: req.body.name }, 
-    { new: true}
+    req.params.id,
+    { name: req.body.name },
+    { new: true }
   );
 
   if (!genre) return res.status(404).send('The genre with the given ID was not found.');
@@ -46,10 +46,12 @@ router.delete('/:id', [auth, checkAdmin], asyncMiddleware(async (req, res) => {
   res.send(genre);
 }));
 
-router.get('/:id', asyncMiddleware(async (req, res) => {
+router.get('/:id', validateObjectId, asyncMiddleware(async (req, res) => {    
   const genre = await Genre.findById(req.params.id);
 
-  if (!genre) return res.status(404).send('The genre with the given ID was not found.');
+  if (!genre) {
+    return res.status(404).send('The genre with the given ID was not found.');
+  }
 
   res.send(genre);
 }));
