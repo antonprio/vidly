@@ -1,3 +1,4 @@
 /node_modules
 privatekey.txt
 /logfiles
+/coverage
